@@ -314,7 +314,7 @@ type CLIArgs struct {
 	maxTLSVersion            TLSVersionArg
 	tlsALPNEnabled           bool
 	tlsSessionKeys           [][32]byte
-	tlsSameSessionKey        bool
+	tlsCookies               bool
 	bwLimit                  forward.LimitSpec
 	bwBurst                  int64
 	bwSeparate               bool
@@ -506,7 +506,7 @@ func parse_args() *CLIArgs {
 		args.tlsSessionKeys = append(args.tlsSessionKeys, [32]byte(key))
 		return nil
 	})
-	flag.BoolVar(&args.tlsSameSessionKey, "tls-same-session-key", true, "issue new TLS session tickets with the same key used for previous ticket")
+	flag.BoolVar(&args.tlsCookies, "tls-cookies", true, "mark TLS sessions with cookie-like unique session IDs")
 	flag.Func("config", "read configuration from file with space-separated keys and values", readConfig)
 	flag.Parse()
 	// pull up remaining parameters from other BW-related arguments
@@ -897,7 +897,7 @@ func run() int {
 				return stopContext
 			},
 			ConnContext: func(ctx context.Context, conn net.Conn) context.Context {
-				return tlsutil.NonDefaultKeyUsedToContext(ctx, conn)
+				return tlsutil.TLSSessionIDToContext(ctx, conn)
 			},
 		}
 		if args.disableHTTP2 {
@@ -1051,8 +1051,8 @@ func makeServerTLSConfig(args *CLIArgs, logger *clog.CondLogger) (*tls.Config, e
 	}
 	if len(args.tlsSessionKeys) > 0 {
 		cfg.SetSessionTicketKeys(args.tlsSessionKeys)
-		if args.tlsSameSessionKey {
-			cfg = tlsutil.PreserveSessionKeys(cfg, args.tlsSessionKeys, logger)
+		if args.tlsCookies {
+			cfg = tlsutil.EnableTLSCookies(cfg, logger)
 		}
 	}
 	return cfg, nil
