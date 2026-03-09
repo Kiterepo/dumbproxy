@@ -39,6 +39,9 @@ func requireBasicAuth(ctx context.Context, wr http.ResponseWriter, req *http.Req
 }
 
 func tryValid(auth Auth, logger *clog.CondLogger, user, password, userAddr string) bool {
+	if auth == nil {
+		return false
+	}
 	if validator, ok := auth.(interface {
 		Valid(string, string, string) bool
 	}); ok {
