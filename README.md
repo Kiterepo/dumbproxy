@@ -302,6 +302,10 @@ Authentication parameters are passed as URI via `-auth` parameter. Scheme of URI
   * `code` - optional parameter specifying HTTP response code. Default is 403.
   * `body` - optional parameter specifying file with response body.
   * `headers` - optional parameter specifying file with response headers. It uses format identical to request header file format used by `curl` program.
+* `tlscookie` - (EXPERIMENTAL) auth provider which grants access to whitelisted TLS session IDs. Whitelist is checked by query of another auth provider (provided as URL in `lookup` query parameter) with session ID as username and empty password. Example of auth parameter: `-auth tlscookie://?lookup=basicfile%3A%2F%2F%3Fpath%3D%2Fetc%2Fdumbproxy%2Fsessions`. Parameters of this scheme are:
+  * `next` - optional URL specifying the next auth provider to chain to, if authentication succeeded.
+  * `else` - optional URL specifying the next auth provider to chain to, if authentication failed.
+  * `lookup` - mandatory URL specifying another auth provider queried for session validity (typically `basicfile` or some Redis-backed password auth). Queries to this lookup provider ask for validity of session providing hexadecimal session ID as username and empty string as password.
 
 ## Scripting
 
