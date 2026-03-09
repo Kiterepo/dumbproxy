@@ -314,6 +314,7 @@ type CLIArgs struct {
 	maxTLSVersion            TLSVersionArg
 	tlsALPNEnabled           bool
 	tlsSessionKeys           [][32]byte
+	tlsCookies               bool
 	bwLimit                  forward.LimitSpec
 	bwBurst                  int64
 	bwSeparate               bool
@@ -505,6 +506,7 @@ func parse_args() *CLIArgs {
 		args.tlsSessionKeys = append(args.tlsSessionKeys, [32]byte(key))
 		return nil
 	})
+	flag.BoolVar(&args.tlsCookies, "tls-cookies", true, "mark TLS sessions with cookie-like unique session IDs")
 	flag.Func("config", "read configuration from file with space-separated keys and values", readConfig)
 	flag.Parse()
 	// pull up remaining parameters from other BW-related arguments
@@ -610,6 +612,9 @@ func run() int {
 		log.LstdFlags|log.Lshortfile),
 		args.verbosity)
 	ttDemuxLogger := clog.NewCondLogger(log.New(logWriter, "TTDEMUX :",
+		log.LstdFlags|log.Lshortfile),
+		args.verbosity)
+	tlsSessionLogger := clog.NewCondLogger(log.New(logWriter, "TLSSESS :",
 		log.LstdFlags|log.Lshortfile),
 		args.verbosity)
 
@@ -780,11 +785,12 @@ func run() int {
 	}
 
 	if args.cert != "" {
-		cfg, err1 := makeServerTLSConfig(args)
+		cfg, err1 := makeServerTLSConfig(args, tlsSessionLogger)
 		if err1 != nil {
 			mainLogger.Critical("TLS config construction failed: %v", err1)
 			return 3
 		}
+		listener = tlsutil.NewTaggedConnListener(listener) // attach DTO container
 		listener = tls.NewListener(listener, cfg)
 	} else if args.autocert {
 		// cert caching chain
@@ -841,7 +847,7 @@ func run() int {
 					http.ListenAndServe(args.autocertHTTP, m.HTTPHandler(nil)))
 			}()
 		}
-		cfg, err := makeServerTLSConfig(args)
+		cfg, err := makeServerTLSConfig(args, tlsSessionLogger)
 		if err != nil {
 			mainLogger.Critical("TLS config construction failed: %v", err)
 			return 3
@@ -850,6 +856,7 @@ func run() int {
 		if len(cfg.NextProtos) > 0 {
 			cfg.NextProtos = append(cfg.NextProtos, acme.ALPNProto)
 		}
+		listener = tlsutil.NewTaggedConnListener(listener) // attach DTO container
 		listener = tls.NewListener(listener, cfg)
 	}
 	defer listener.Close()
@@ -888,6 +895,9 @@ func run() int {
 			Protocols:         new(http.Protocols),
 			BaseContext: func(_ net.Listener) context.Context {
 				return stopContext
+			},
+			ConnContext: func(ctx context.Context, conn net.Conn) context.Context {
+				return tlsutil.TLSSessionIDToContext(ctx, conn)
 			},
 		}
 		if args.disableHTTP2 {
@@ -1003,8 +1013,8 @@ func run() int {
 	return 2
 }
 
-func makeServerTLSConfig(args *CLIArgs) (*tls.Config, error) {
-	cfg := tls.Config{
+func makeServerTLSConfig(args *CLIArgs, logger *clog.CondLogger) (*tls.Config, error) {
+	cfg := &tls.Config{
 		MinVersion: uint16(args.minTLSVersion),
 		MaxVersion: uint16(args.maxTLSVersion),
 	}
@@ -1041,8 +1051,11 @@ func makeServerTLSConfig(args *CLIArgs) (*tls.Config, error) {
 	}
 	if len(args.tlsSessionKeys) > 0 {
 		cfg.SetSessionTicketKeys(args.tlsSessionKeys)
+		if args.tlsCookies {
+			cfg = tlsutil.EnableTLSCookies(cfg, logger)
+		}
 	}
-	return &cfg, nil
+	return cfg, nil
 }
 
 func readConfig(filename string) error {
