@@ -1,7 +1,6 @@
 publiccodeYmlVersion: 0.5.0
 name: dumbproxy
 url: https://github.com/SenseUnit/dumbproxy
-softwareVersion: 1.43.0
 releaseDate: 2026-02-27
 platforms:
   - windows
