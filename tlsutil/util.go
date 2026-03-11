@@ -12,8 +12,6 @@ import (
 	utls "github.com/refraction-networking/utls"
 )
 
-var sessionCache = tls.NewLRUClientSessionCache(0)
-
 func ExpectPeerName(name string, roots *x509.CertPool) func(cs tls.ConnectionState) error {
 	return func(cs tls.ConnectionState) error {
 		opts := x509.VerifyOptions{
@@ -173,7 +171,7 @@ func TLSConfigFromURL(u *url.URL) (*tls.Config, error) {
 	}
 	tlsConfig := &tls.Config{
 		ServerName:         host,
-		ClientSessionCache: sessionCache,
+		ClientSessionCache: SessionCache,
 	}
 	if params.Has("cafile") {
 		roots, err := LoadCAfile(params.Get("cafile"))

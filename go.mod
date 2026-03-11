@@ -15,6 +15,7 @@ require (
 	github.com/refraction-networking/utls v1.8.2
 	github.com/tg123/go-htpasswd v1.2.4
 	github.com/things-go/go-socks5 v0.1.0
+	go.etcd.io/bbolt v1.4.3
 	golang.org/x/crypto v0.48.0
 	golang.org/x/crypto/x509roots/fallback v0.0.0-20260213171211-a408498e5541
 	golang.org/x/net v0.51.0

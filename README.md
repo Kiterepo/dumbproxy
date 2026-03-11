@@ -648,6 +648,8 @@ Usage of /home/user/go/bin/dumbproxy:
     	mark TLS sessions with cookie-like unique session IDs (default true)
   -tls-session-key value
     	override TLS server session keys. Key must be provided as hex-encoded 32-byte string. This option can be repeated multiple times, first key will be used to create session tickets. Empty value resets the list.
+  -tls-session-cache-db string
+    	location of TLS client session cache DB
   -trusttunnel
     	enable TrustTunnel protocol extensions (default true)
   -unix-sock-mode value
