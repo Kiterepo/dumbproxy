@@ -315,6 +315,7 @@ type CLIArgs struct {
 	tlsALPNEnabled           bool
 	tlsSessionKeys           [][32]byte
 	tlsCookies               bool
+	tlsSessionCacheDB        string
 	bwLimit                  forward.LimitSpec
 	bwBurst                  int64
 	bwSeparate               bool
@@ -507,6 +508,7 @@ func parse_args() *CLIArgs {
 		return nil
 	})
 	flag.BoolVar(&args.tlsCookies, "tls-cookies", true, "mark TLS sessions with cookie-like unique session IDs")
+	flag.StringVar(&args.tlsSessionCacheDB, "tls-ticket-cache-db", "", "location of TLS client session cache DB")
 	flag.Func("config", "read configuration from file with space-separated keys and values", readConfig)
 	flag.Parse()
 	// pull up remaining parameters from other BW-related arguments
@@ -617,6 +619,19 @@ func run() int {
 	tlsSessionLogger := clog.NewCondLogger(log.New(logWriter, "TLSSESS :",
 		log.LstdFlags|log.Lshortfile),
 		args.verbosity)
+	tlsCacheLogger := clog.NewCondLogger(log.New(logWriter, "TLSCACHE:",
+		log.LstdFlags|log.Lshortfile),
+		args.verbosity)
+
+	// setup TLS session cache
+	if args.tlsSessionCacheDB != "" {
+		cache, err := tlsutil.NewPersistentClientSessionCache(args.tlsSessionCacheDB, tlsCacheLogger)
+		if err != nil {
+			mainLogger.Critical("Failed to instantiate TLS session cache: %v", err)
+			return 3
+		}
+		tlsutil.SessionCache = cache
+	}
 
 	// setup auth provider
 	authProvider, err := auth.NewAuth(args.auth, authLogger)
