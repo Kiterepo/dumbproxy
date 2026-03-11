@@ -508,7 +508,7 @@ func parse_args() *CLIArgs {
 		return nil
 	})
 	flag.BoolVar(&args.tlsCookies, "tls-cookies", true, "mark TLS sessions with cookie-like unique session IDs")
-	flag.StringVar(&args.tlsSessionCacheDB, "tls-ticket-cache-db", "", "location of TLS client session cache DB")
+	flag.StringVar(&args.tlsSessionCacheDB, "tls-session-cache-db", "", "location of TLS client session cache DB")
 	flag.Func("config", "read configuration from file with space-separated keys and values", readConfig)
 	flag.Parse()
 	// pull up remaining parameters from other BW-related arguments
