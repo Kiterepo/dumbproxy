@@ -7,7 +7,6 @@ import (
 	"fmt"
 	"net/http"
 	"net/url"
-	"strconv"
 	"strings"
 	"sync"
 	"sync/atomic"
@@ -157,13 +156,11 @@ func (auth *BasicAuth) Validate(ctx context.Context, wr http.ResponseWriter, req
 
 	if pwFile.Match(login, password) {
 		if auth.hiddenDomain != "" &&
-			(req.Host == auth.hiddenDomain || req.URL.Host == auth.hiddenDomain) {
-			wr.Header().Set("Content-Length", strconv.Itoa(len([]byte(AUTH_TRIGGERED_MSG))))
+			(matchHiddenDomain(req.Host, auth.hiddenDomain) || matchHiddenDomain(req.URL.Host, auth.hiddenDomain)) {
 			wr.Header().Set("Pragma", "no-cache")
 			wr.Header().Set("Cache-Control", "no-cache, no-store, must-revalidate")
 			wr.Header().Set("Expires", EPOCH_EXPIRE)
-			wr.Header()["Date"] = nil
-			wr.WriteHeader(http.StatusOK)
+			wr.WriteHeader(http.StatusBadRequest)
 			wr.Write([]byte(AUTH_TRIGGERED_MSG))
 			return "", false
 		} else {
