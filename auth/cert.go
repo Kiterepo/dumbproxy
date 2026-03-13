@@ -68,6 +68,7 @@ func NewCertAuth(param_url *url.URL, logger *clog.CondLogger) (*CertAuth, error)
 	if nextAuth := values.Get("next"); nextAuth != "" {
 		nap, err := NewAuth(nextAuth, logger)
 		if err != nil {
+			defer auth.Close()
 			return nil, fmt.Errorf("chained auth provider construction failed: %w", err)
 		}
 		auth.next = nap
@@ -75,6 +76,7 @@ func NewCertAuth(param_url *url.URL, logger *clog.CondLogger) (*CertAuth, error)
 	if nextAuth := values.Get("else"); nextAuth != "" {
 		nap, err := NewAuth(nextAuth, logger)
 		if err != nil {
+			defer auth.Close()
 			return nil, fmt.Errorf("chained auth provider construction failed: %w", err)
 		}
 		auth.reject = nap
