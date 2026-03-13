@@ -58,6 +58,7 @@ func NewRedisAuth(param_url *url.URL, cluster bool, logger *clog.CondLogger) (*R
 	if nextAuth := values.Get("else"); nextAuth != "" {
 		nap, err := NewAuth(nextAuth, logger)
 		if err != nil {
+			defer auth.Close()
 			return nil, fmt.Errorf("chained auth provider construction failed: %w", err)
 		}
 		auth.next = nap

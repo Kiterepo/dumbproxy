@@ -63,10 +63,10 @@ func NewBasicFileAuth(param_url *url.URL, logger *clog.CondLogger) (*BasicAuth, 
 	if reloadInterval > 0 {
 		go auth.reloadLoop(reloadInterval)
 	}
-
 	if nextAuth := values.Get("else"); nextAuth != "" {
 		nap, err := NewAuth(nextAuth, logger)
 		if err != nil {
+			defer auth.Close()
 			return nil, fmt.Errorf("chained auth provider construction failed: %w", err)
 		}
 		auth.next = nap
