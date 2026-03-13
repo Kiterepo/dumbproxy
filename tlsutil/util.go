@@ -163,6 +163,34 @@ func FormatVersion(v uint16) string {
 	}
 }
 
+type clientSessionCacheKeyRewrite struct {
+	from  string
+	to    string
+	cache tls.ClientSessionCache
+}
+
+func (r clientSessionCacheKeyRewrite) Get(sessionKey string) (session *tls.ClientSessionState, ok bool) {
+	if sessionKey == r.from {
+		sessionKey = r.to
+	}
+	return r.cache.Get(sessionKey)
+}
+
+func (r clientSessionCacheKeyRewrite) Put(sessionKey string, cs *tls.ClientSessionState) {
+	if sessionKey == r.from {
+		sessionKey = r.to
+	}
+	r.cache.Put(sessionKey, cs)
+}
+
+func wrapCacheWithKeyRewrite(from, to string, cache tls.ClientSessionCache) tls.ClientSessionCache {
+	return clientSessionCacheKeyRewrite{
+		from:  from,
+		to:    to,
+		cache: cache,
+	}
+}
+
 func TLSConfigFromURL(u *url.URL) (*tls.Config, error) {
 	host := u.Hostname()
 	params, err := url.ParseQuery(u.RawQuery)
@@ -181,9 +209,11 @@ func TLSConfigFromURL(u *url.URL) (*tls.Config, error) {
 		tlsConfig.RootCAs = roots
 	}
 	if params.Has("sni") {
-		tlsConfig.ServerName = params.Get("sni")
+		newServerName := params.Get("sni")
+		tlsConfig.ServerName = newServerName
 		tlsConfig.InsecureSkipVerify = true
 		tlsConfig.VerifyConnection = ExpectPeerName(host, tlsConfig.RootCAs)
+		tlsConfig.ClientSessionCache = wrapCacheWithKeyRewrite(newServerName, host, SessionCache)
 	}
 	if params.Has("peername") {
 		tlsConfig.InsecureSkipVerify = true
