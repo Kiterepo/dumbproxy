@@ -71,3 +71,11 @@ func makePasswdMatcher(encoded string) (htpasswd.EncodedPasswd, error) {
 	}
 	return nil, errors.New("no suitable password encoding system found")
 }
+
+func sendAuthTriggeredMsg(wr http.ResponseWriter) {
+	wr.Header().Set("Pragma", "no-cache")
+	wr.Header().Set("Cache-Control", "no-cache, no-store, must-revalidate")
+	wr.Header().Set("Expires", EPOCH_EXPIRE)
+	wr.WriteHeader(http.StatusBadRequest)
+	wr.Write([]byte(AUTH_TRIGGERED_MSG))
+}

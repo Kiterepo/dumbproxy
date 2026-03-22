@@ -157,11 +157,7 @@ func (auth *BasicAuth) Validate(ctx context.Context, wr http.ResponseWriter, req
 	if pwFile.Match(login, password) {
 		if auth.hiddenDomain != "" &&
 			(matchHiddenDomain(req.Host, auth.hiddenDomain) || matchHiddenDomain(req.URL.Host, auth.hiddenDomain)) {
-			wr.Header().Set("Pragma", "no-cache")
-			wr.Header().Set("Cache-Control", "no-cache, no-store, must-revalidate")
-			wr.Header().Set("Expires", EPOCH_EXPIRE)
-			wr.WriteHeader(http.StatusBadRequest)
-			wr.Write([]byte(AUTH_TRIGGERED_MSG))
+			sendAuthTriggeredMsg(wr)
 			return "", false
 		} else {
 			return login, true

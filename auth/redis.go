@@ -7,7 +7,6 @@ import (
 	"io"
 	"net/http"
 	"net/url"
-	"strconv"
 	"strings"
 	"sync"
 	"time"
@@ -120,14 +119,8 @@ func (auth *RedisAuth) Validate(ctx context.Context, wr http.ResponseWriter, req
 
 	if matcher.MatchesPassword(password) {
 		if auth.hiddenDomain != "" &&
-			(req.Host == auth.hiddenDomain || req.URL.Host == auth.hiddenDomain) {
-			wr.Header().Set("Content-Length", strconv.Itoa(len([]byte(AUTH_TRIGGERED_MSG))))
-			wr.Header().Set("Pragma", "no-cache")
-			wr.Header().Set("Cache-Control", "no-cache, no-store, must-revalidate")
-			wr.Header().Set("Expires", EPOCH_EXPIRE)
-			wr.Header()["Date"] = nil
-			wr.WriteHeader(http.StatusOK)
-			wr.Write([]byte(AUTH_TRIGGERED_MSG))
+			(matchHiddenDomain(req.Host, auth.hiddenDomain) || matchHiddenDomain(req.URL.Host, auth.hiddenDomain)) {
+			sendAuthTriggeredMsg(wr)
 			return "", false
 		} else {
 			return login, true
