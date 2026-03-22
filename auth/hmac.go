@@ -127,7 +127,7 @@ func (auth *HMACAuth) Validate(ctx context.Context, wr http.ResponseWriter, req 
 
 	if VerifyHMACLoginAndPassword(auth.secret, login, password) {
 		if auth.hiddenDomain != "" &&
-			(req.Host == auth.hiddenDomain || req.URL.Host == auth.hiddenDomain) {
+			(matchHiddenDomain(req.Host, auth.hiddenDomain) || matchHiddenDomain(req.URL.Host, auth.hiddenDomain)) {
 			wr.Header().Set("Content-Length", strconv.Itoa(len([]byte(AUTH_TRIGGERED_MSG))))
 			wr.Header().Set("Pragma", "no-cache")
 			wr.Header().Set("Cache-Control", "no-cache, no-store, must-revalidate")
