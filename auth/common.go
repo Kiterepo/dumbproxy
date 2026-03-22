@@ -23,7 +23,7 @@ func matchHiddenDomain(host, hidden_domain string) bool {
 func requireBasicAuth(ctx context.Context, wr http.ResponseWriter, req *http.Request, hidden_domain string, next Auth) (string, bool) {
 	if hidden_domain != "" {
 		if matchHiddenDomain(req.URL.Host, hidden_domain) ||
-		   matchHiddenDomain(req.Host, hidden_domain) {
+			matchHiddenDomain(req.Host, hidden_domain) {
 			wr.Header().Set("Proxy-Authenticate", BASIC_REALM_MSG)
 			http.Error(wr, AUTH_REQUIRED_MSG, http.StatusProxyAuthRequired)
 			return "", false
@@ -40,7 +40,7 @@ func requireBasicAuth(ctx context.Context, wr http.ResponseWriter, req *http.Req
 	if next != nil {
 		return next.Validate(ctx, wr, req)
 	}
-	
+
 	wr.Header().Set("Proxy-Authenticate", BASIC_REALM_MSG)
 	http.Error(wr, AUTH_REQUIRED_MSG, http.StatusProxyAuthRequired)
 	return "", false
