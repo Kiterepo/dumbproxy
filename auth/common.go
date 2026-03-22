@@ -22,19 +22,28 @@ func matchHiddenDomain(host, hidden_domain string) bool {
 }
 
 func requireBasicAuth(ctx context.Context, wr http.ResponseWriter, req *http.Request, hidden_domain string, next Auth) (string, bool) {
+	if hidden_domain != "" {
+		if matchHiddenDomain(req.URL.Host, hidden_domain) ||
+		   matchHiddenDomain(req.Host, hidden_domain) {
+			wr.Header().Set("Proxy-Authenticate", `Basic realm="dumbproxy"`)
+			wr.Header().Set("Content-Length", strconv.Itoa(len([]byte(AUTH_REQUIRED_MSG))))
+			wr.WriteHeader(http.StatusProxyAuthRequired)
+			wr.Write([]byte(AUTH_REQUIRED_MSG))
+			return "", false
+		}
+
+		if next != nil {
+			return next.Validate(ctx, wr, req)
+		}
+
+		http.Error(wr, BAD_REQ_MSG, http.StatusBadRequest)
+		return "", false
+	}
+
 	if next != nil {
 		return next.Validate(ctx, wr, req)
 	}
-	if hidden_domain != "" &&
-		!matchHiddenDomain(req.URL.Host, hidden_domain) &&
-		!matchHiddenDomain(req.Host, hidden_domain) {
-		http.Error(wr, BAD_REQ_MSG, http.StatusBadRequest)
-	} else {
-		wr.Header().Set("Proxy-Authenticate", `Basic realm="dumbproxy"`)
-		wr.Header().Set("Content-Length", strconv.Itoa(len([]byte(AUTH_REQUIRED_MSG))))
-		wr.WriteHeader(407)
-		wr.Write([]byte(AUTH_REQUIRED_MSG))
-	}
+
 	return "", false
 }
 
