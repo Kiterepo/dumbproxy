@@ -6,7 +6,6 @@ import (
 	"errors"
 	"net"
 	"net/http"
-	"strconv"
 	"strings"
 
 	clog "github.com/SenseUnit/dumbproxy/log"
@@ -25,10 +24,8 @@ func requireBasicAuth(ctx context.Context, wr http.ResponseWriter, req *http.Req
 	if hidden_domain != "" {
 		if matchHiddenDomain(req.URL.Host, hidden_domain) ||
 		   matchHiddenDomain(req.Host, hidden_domain) {
-			wr.Header().Set("Proxy-Authenticate", `Basic realm="dumbproxy"`)
-			wr.Header().Set("Content-Length", strconv.Itoa(len([]byte(AUTH_REQUIRED_MSG))))
-			wr.WriteHeader(http.StatusProxyAuthRequired)
-			wr.Write([]byte(AUTH_REQUIRED_MSG))
+			wr.Header().Set("Proxy-Authenticate", BASIC_REALM_MSG)
+			http.Error(wr, AUTH_REQUIRED_MSG, http.StatusProxyAuthRequired)
 			return "", false
 		}
 
@@ -43,7 +40,9 @@ func requireBasicAuth(ctx context.Context, wr http.ResponseWriter, req *http.Req
 	if next != nil {
 		return next.Validate(ctx, wr, req)
 	}
-
+	
+	wr.Header().Set("Proxy-Authenticate", BASIC_REALM_MSG)
+	http.Error(wr, AUTH_REQUIRED_MSG, http.StatusProxyAuthRequired)
 	return "", false
 }
 
