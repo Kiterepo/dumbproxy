@@ -668,4 +668,3 @@ Usage of /home/user/go/bin/dumbproxy:
 ## See Also
 
 * [Project Wiki](https://github.com/SenseUnit/dumbproxy/wiki)
-* [Community in Telegram](https://t.me/alternative_proxy)
