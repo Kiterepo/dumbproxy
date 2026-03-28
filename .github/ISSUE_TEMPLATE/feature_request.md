@@ -8,7 +8,7 @@ type: Feature
 
 ---
 
-<!-- Please use English and fill information below -->
+<!-- Please use English and provide information below -->
 
 **Is your feature request related to a problem? Please describe.**
 A clear and concise description of what the problem is. Ex. I'm always frustrated when [...]

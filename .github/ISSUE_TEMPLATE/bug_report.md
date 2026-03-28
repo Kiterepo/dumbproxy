@@ -8,7 +8,7 @@ type: Bug
 
 ---
 
-<!-- Please use English and fill information below -->
+<!-- Please use English and provide information below -->
 
 **Describe the bug**
 A clear and concise description of what the bug is.
