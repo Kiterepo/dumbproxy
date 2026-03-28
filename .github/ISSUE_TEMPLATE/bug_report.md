@@ -19,8 +19,13 @@ Steps to reproduce the behavior.
 **Expected behavior**
 A clear and concise description of what you expected to happen.
 
-**Screenshots**
-If applicable, add screenshots to help explain your problem.
+**Log output**
+If applicable, log output to help explain your problem.
+
+```
+<!-- Log output goes after this line -->
+
+```
 
 **System (please complete the following information):**
  - OS: [e.g. Linux]
