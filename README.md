@@ -668,3 +668,4 @@ Usage of /home/user/go/bin/dumbproxy:
 ## See Also
 
 * [Project Wiki](https://github.com/SenseUnit/dumbproxy/wiki)
+* [Project Forum](https://github.com/SenseUnit/dumbproxy/discussions)
