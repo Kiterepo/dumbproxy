@@ -5,7 +5,7 @@ import (
 	"io"
 	"time"
 
-	"github.com/Snawoot/secache"
+	"codeberg.org/yarmak/secache"
 	"golang.org/x/crypto/acme/autocert"
 	"golang.org/x/sync/singleflight"
 )

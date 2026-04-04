@@ -6,7 +6,7 @@ import (
 	"net/url"
 	"time"
 
-	"github.com/Snawoot/secache"
+	"codeberg.org/yarmak/secache"
 	xproxy "golang.org/x/net/proxy"
 )
 
