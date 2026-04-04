@@ -9,7 +9,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/Snawoot/secache"
+	"codeberg.org/yarmak/secache"
 	"github.com/hashicorp/go-multierror"
 	"golang.org/x/sync/singleflight"
 

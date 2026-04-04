@@ -3,7 +3,7 @@ module github.com/SenseUnit/dumbproxy
 go 1.25.0
 
 require (
-	github.com/Snawoot/secache v0.2.1
+	codeberg.org/yarmak/secache v0.2.4
 	github.com/Snawoot/uniqueslice v0.1.1
 	github.com/coreos/go-systemd/v22 v22.7.0
 	github.com/dop251/goja v0.0.0-20260311135729-065cd970411c

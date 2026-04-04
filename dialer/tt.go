@@ -14,8 +14,8 @@ import (
 	"sync/atomic"
 	"time"
 
-	"github.com/Snawoot/secache"
-	"github.com/Snawoot/secache/randmap"
+	"codeberg.org/yarmak/secache"
+	"codeberg.org/yarmak/secache/randmap"
 	xproxy "golang.org/x/net/proxy"
 
 	clog "github.com/SenseUnit/dumbproxy/log"

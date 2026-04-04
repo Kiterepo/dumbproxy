@@ -8,8 +8,8 @@ import (
 	"sync"
 	"time"
 
-	"github.com/Snawoot/secache"
-	"github.com/Snawoot/secache/randmap"
+	"codeberg.org/yarmak/secache"
+	"codeberg.org/yarmak/secache/randmap"
 
 	clog "github.com/SenseUnit/dumbproxy/log"
 	"github.com/SenseUnit/dumbproxy/rate"
